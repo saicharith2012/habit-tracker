@@ -46,20 +46,34 @@ export function CalendarGrid({ year, month, completedDates, onDateClick, compact
   const isFuture = (day: number) => {
     const today = new Date()
     const dateToCheck = new Date(year, month, day)
+    // Set hours, minutes, seconds, and milliseconds to 0 for accurate date comparison
+    today.setHours(0, 0, 0, 0)
+    dateToCheck.setHours(0, 0, 0, 0)
     return dateToCheck > today
   }
 
+  // Check if date is in the past
+  const isPast = (day: number) => {
+    const today = new Date()
+    const dateToCheck = new Date(year, month, day)
+    // Set hours, minutes, seconds, and milliseconds to 0 for accurate date comparison
+    today.setHours(0, 0, 0, 0)
+    dateToCheck.setHours(0, 0, 0, 0)
+    return dateToCheck < today
+  }
+
   const handleDateClick = (day: number) => {
-    if (isFuture(day)) return
+    if (isFuture(day) || isPast(day)) return
+
     const dateString = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
     onDateClick(dateString)
   }
 
-  const cellSize = compact ? "w-6 h-6 text-xs" : "w-8 h-8 text-sm"
-  const gridGap = compact ? "gap-1" : "gap-2"
+  
+  const gridGap = compact ? "gap-0.5" : "gap-1"
 
   return (
-    <div className="w-full">
+    <div className={cn(compact ? "w-[280px]" : "w-[350px]", "h-fit")}>
       {/* Days of week header */}
       <div className={cn("grid grid-cols-7 mb-2", gridGap)}>
         {daysOfWeek.map((day) => (
@@ -75,10 +89,9 @@ export function CalendarGrid({ year, month, completedDates, onDateClick, compact
           <div
             key={index}
             className={cn(
-              "flex items-center justify-center rounded-md transition-colors",
-              cellSize,
+              "aspect-square flex items-center justify-center rounded-md transition-colors",
               day && !isFuture(day) && "cursor-pointer hover:bg-gray-100",
-              day && isFuture(day) && "cursor-not-allowed opacity-40",
+              day && isFuture(day) && "cursor-not-allowed text-gray-400",
               !day && "cursor-default",
             )}
             onClick={() => day && handleDateClick(day)}
@@ -86,12 +99,14 @@ export function CalendarGrid({ year, month, completedDates, onDateClick, compact
             {day && (
               <div
                 className={cn(
-                  "w-full h-full flex items-center justify-center rounded-md transition-colors",
-                  isDateCompleted(day) && "bg-green-500 text-white font-medium",
-                  !isDateCompleted(day) && !isFuture(day) && "bg-gray-100 text-gray-700 hover:bg-gray-200",
-                  !isDateCompleted(day) && isFuture(day) && "bg-gray-50 text-gray-400",
-                  isToday(day) && !isDateCompleted(day) && "ring-2 ring-blue-500 bg-blue-50 text-blue-700",
-                  isToday(day) && isDateCompleted(day) && "ring-2 ring-green-600",
+                  "w-full h-full flex items-center justify-center rounded-md transition-colors leading-none",
+                  compact ? "text-xs" : "text-sm", // Apply text size here
+                  isFuture(day) ? "bg-gray-50 text-gray-400" : // If future, always grey
+              isDateCompleted(day) ? "bg-green-500 text-white font-medium" : // If completed, green (prioritize completed)
+              isPast(day) ? "bg-gray-100 text-gray-400 cursor-not-allowed" : // If past and not completed, grey and not allowed
+              isToday(day) ? "ring-2 ring-blue-500 bg-blue-50 text-blue-700" : // If today and not completed, blue ring
+              "bg-gray-100 text-gray-700 hover:bg-gray-200", // Default for current non-completed and not completed
+              isToday(day) && isDateCompleted(day) && "ring-2 ring-black", // Additional ring for completed today,
                 )}
               >
                 {day}
