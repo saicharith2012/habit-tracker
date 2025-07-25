@@ -1,1 +1,3 @@
-[https://habit-tracker-cspr.vercel.app/](Habit tracker) made by vibe-coding with [https://v0.dev/](v0.dev) and [https://www.npmjs.com/package/@google/gemini-cli](gemini-cli)
+# Habit Tracker
+
+[Habit tracker](https://habit-tracker-cspr.vercel.app/) made by vibe-coding with [v0.dev](https://v0.dev) and [gemini-cli](https://www.npmjs.com/package/@google/gemini-cli)
