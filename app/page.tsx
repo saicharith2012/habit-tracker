@@ -10,7 +10,8 @@ import { loadHabits, saveHabits } from "@/lib/localStorageUtils"
 import { Habit } from "@/types/habit"
 
 export default function Dashboard() {
-  const [habits, setHabits] = useState<Habit[]>(() => loadHabits())
+  const [habits, setHabits] = useState<Habit[]>([])
+  const [loading, setLoading] = useState(true)
   const [isAddHabitOpen, setIsAddHabitOpen] = useState(false)
 
   const currentDate = new Date();
@@ -18,8 +19,15 @@ export default function Dashboard() {
   const currentDay = currentDate.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long" });
 
   useEffect(() => {
-    saveHabits(habits)
-  }, [habits])
+    setHabits(loadHabits())
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    if (!loading) {
+      saveHabits(habits)
+    }
+  }, [habits, loading])
 
   const handleAddHabit = (habitName: string) => {
     const newHabit: Habit = {
@@ -75,7 +83,11 @@ export default function Dashboard() {
 
         {/* Habits Grid */}
         <div className="flex flex-wrap justify-start gap-4">
-          {habits.length > 0 ? (
+          {loading ? (
+            <div className="w-full text-center py-12">
+              <h2 className="text-xl font-semibold text-gray-700">Loading habits...</h2>
+            </div>
+          ) : habits.length > 0 ? (
             habits.map((habit) => (
               <HabitCard
                 key={habit.id}

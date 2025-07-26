@@ -22,9 +22,10 @@ import { YearlyHabitTracker } from "@/components/YearlyHabitTracker";
 
 interface HabitDetailProps {
   habitId: string;
+  loading: boolean;
 }
 
-export function HabitDetail({ habitId }: HabitDetailProps) {
+export function HabitDetail({ habitId, loading }: HabitDetailProps) {
   const [habit, setHabit] = useState<Habit | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -40,9 +41,11 @@ export function HabitDetail({ habitId }: HabitDetailProps) {
   );
 
   useEffect(() => {
-    const loadedHabit = getHabitById(habitId);
-    setHabit(loadedHabit);
-  }, [habitId]);
+    if (!loading) {
+      const loadedHabit = getHabitById(habitId);
+      setHabit(loadedHabit);
+    }
+  }, [habitId, loading]);
 
   const handleConfirmModalClose = () => {
     setIsConfirmModalOpen(false);
@@ -85,6 +88,20 @@ export function HabitDetail({ habitId }: HabitDetailProps) {
     });
     setIsConfirmModalOpen(true);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center py-12">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              Loading habit details...
+            </h1>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!habit) {
     return (
