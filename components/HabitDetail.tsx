@@ -165,7 +165,7 @@ export function HabitDetail({ habitId }: HabitDetailProps) {
           </Link>
         </div>
 
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col items-start mb-4 sm:mb-0 sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="mx-2 my-4">
             <h1 className="text-3xl font-bold text-gray-900">
               {habit.name.charAt(0).toUpperCase() + habit.name.slice(1)}
@@ -178,7 +178,7 @@ export function HabitDetail({ habitId }: HabitDetailProps) {
                 year: "numeric",
               })}
             </p>
-            <div className="grid grid-cols-2 gap-2 mt-2">
+            <div className="grid grid-cols-2 gap-2 mt-2 w-56">
               <div className="aspect-square flex flex-col items-center justify-center rounded-md bg-gray-100 text-gray-700 p-2">
                 <span className="text-xs font-semibold">Max Streak</span>
                 <span className="text-lg font-bold">{maxStreak}</span>
