@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -11,6 +11,13 @@ interface AddHabitDialogProps {
 
 export function AddHabitDialog({ onOpenChange, onAddHabit }: AddHabitDialogProps) {
   const [habitName, setHabitName] = useState("")
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [])
 
   const handleAddHabit = () => {
     if (habitName.trim() !== "") {
@@ -24,6 +31,7 @@ export function AddHabitDialog({ onOpenChange, onAddHabit }: AddHabitDialogProps
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
         <h2 className="text-lg font-semibold mb-4">Add New Habit</h2>
         <Input
+          ref={inputRef}
           placeholder="Habit name (e.g., Drink Water)"
           value={habitName}
           onChange={(e) => setHabitName(e.target.value)}
