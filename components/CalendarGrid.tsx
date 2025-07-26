@@ -90,8 +90,8 @@ export function CalendarGrid({ year, month, completedDates, onDateClick, compact
             key={index}
             className={cn(
               "aspect-square flex items-center justify-center rounded-md transition-colors",
-              day && !isFuture(day) && "cursor-pointer hover:bg-gray-100",
-              day && isFuture(day) && "cursor-not-allowed text-gray-400",
+              day && isToday(day) && "cursor-pointer hover:bg-gray-100",
+              day && (isFuture(day) || isPast(day)) && "cursor-default text-gray-400",
               !day && "cursor-default",
             )}
             onClick={() => day && handleDateClick(day)}
@@ -103,7 +103,7 @@ export function CalendarGrid({ year, month, completedDates, onDateClick, compact
                   compact ? "text-xs" : "text-sm", // Apply text size here
                   isFuture(day) ? "bg-gray-50 text-gray-400" : // If future, always grey
               isDateCompleted(day) ? "bg-green-500 text-white font-medium" : // If completed, green (prioritize completed)
-              isPast(day) ? "bg-gray-100 text-gray-400 cursor-not-allowed" : // If past and not completed, grey and not allowed
+              isPast(day) ? "bg-gray-100 text-gray-400 cursor-default" : // If past and not completed, grey and not allowed
               isToday(day) ? "ring-2 ring-blue-500 bg-blue-50 text-blue-700" : // If today and not completed, blue ring
               "bg-gray-100 text-gray-700 hover:bg-gray-200", // Default for current non-completed and not completed
               isToday(day) && isDateCompleted(day) && "ring-2 ring-black", // Additional ring for completed today,
