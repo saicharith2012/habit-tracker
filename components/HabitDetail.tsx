@@ -32,6 +32,17 @@ export function HabitDetail({ habitId }: HabitDetailProps) {
     (() => void) | null
   >(null);
   const router = useRouter();
+  const [displayMode, setDisplayMode] = useState<"last371days" | "yearly">(
+    "last371days"
+  );
+  const [selectedYear, setSelectedYear] = useState<number | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    const loadedHabit = getHabitById(habitId);
+    setHabit(loadedHabit);
+  }, [habitId]);
 
   const handleConfirmModalClose = () => {
     setIsConfirmModalOpen(false);
@@ -45,13 +56,6 @@ export function HabitDetail({ habitId }: HabitDetailProps) {
     }
     handleConfirmModalClose();
   };
-
-  useEffect(() => {
-    console.log("HabitDetail: habitId from params", habitId);
-    const loadedHabit = getHabitById(habitId);
-    console.log("HabitDetail: loadedHabit", loadedHabit);
-    setHabit(loadedHabit);
-  }, [habitId]);
 
   const toggleHabitCompletion = (date: string) => {
     if (!habit) return;
@@ -76,7 +80,7 @@ export function HabitDetail({ habitId }: HabitDetailProps) {
     setModalConfirmAction(() => () => {
       if (habit) {
         deleteHabit(habit.id);
-        router.push("/"); // Redirect to dashboard after deletion
+        router.push("/");
       }
     });
     setIsConfirmModalOpen(true);
@@ -106,6 +110,12 @@ export function HabitDetail({ habitId }: HabitDetailProps) {
   }
 
   const createdAtDate = habit.createdAt;
+  const startYear = createdAtDate.getFullYear();
+  const currentYear = new Date().getFullYear();
+  const years = Array.from(
+    { length: currentYear - startYear + 1 },
+    (_, i) => currentYear - i
+  );
 
   const calculateMaxStreak = () => {
     if (habit.completedDates.length === 0) return 0;
@@ -150,8 +160,7 @@ export function HabitDetail({ habitId }: HabitDetailProps) {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
+      <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-start gap-4 mb-8">
           <Link href="/">
             <Button
@@ -165,7 +174,7 @@ export function HabitDetail({ habitId }: HabitDetailProps) {
           </Link>
         </div>
 
-        <div className="flex flex-col items-start mb-4 sm:mb-0 sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col items-start mb-8 sm:mb-0 sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="mx-2 my-4">
             <h1 className="text-3xl font-bold text-gray-900">
               {habit.name.charAt(0).toUpperCase() + habit.name.slice(1)}
@@ -209,12 +218,31 @@ export function HabitDetail({ habitId }: HabitDetailProps) {
           </TooltipProvider>
         </div>
 
-        {/* Yearly Habit Tracker */}
-        <YearlyHabitTracker
-          completedDates={habit.completedDates}
-          onDateClick={handleDateClick}
-          createdAt={habit.createdAt}
-        />
+        <div className="flex flex-col md:flex-row gap-8">
+          <div className="flex-grow">
+            <YearlyHabitTracker
+              completedDates={habit.completedDates}
+              onDateClick={handleDateClick}
+              displayMode={displayMode}
+              selectedYear={selectedYear}
+            />
+          </div>
+          <div className="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-x-visible">
+            {years.map((year) => (
+              <Button
+                key={year}
+                variant={selectedYear === year ? "default" : "outline"}
+                onClick={() => {
+                  setDisplayMode("yearly");
+                  setSelectedYear(year);
+                }}
+                className="w-fit"
+              >
+                {year}
+              </Button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <ConfirmationModal
