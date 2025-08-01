@@ -41,15 +41,7 @@ export function YearlyHabitTracker({
 
   const getDays = () => {
     const days = [];
-    if (displayMode === "last371days") {
-      const today = new Date();
-      for (let i = 0; i < 371; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() - i);
-        days.push(date);
-      }
-      return days.reverse();
-    } else if (displayMode === "yearly" && selectedYear) {
+    if (displayMode === "yearly" && selectedYear) {
       const date = new Date(selectedYear, 0, 1);
       while (date.getFullYear() === selectedYear) {
         days.push(new Date(date));
@@ -57,7 +49,15 @@ export function YearlyHabitTracker({
       }
       return days;
     }
-    return [];
+
+    // Default to last 371 days
+    const today = new Date();
+    for (let i = 0; i < 371; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      days.push(date);
+    }
+    return days.reverse();
   };
 
   const days = getDays();
@@ -116,14 +116,24 @@ export function YearlyHabitTracker({
           {weeks.map((week, weekIndex) => (
             <div key={weekIndex} className="flex flex-col gap-1">
               {week.map((date, dayIndex) => {
-                const isToday = date && date.toDateString() === new Date().toDateString();
+                if (!date) {
+                  return (
+                    <div
+                      key={`empty-${weekIndex}-${dayIndex}`}
+                      className="w-4 h-4 rounded-sm bg-transparent"
+                    />
+                  );
+                }
+
+                const isToday =
+                  date.toDateString() === new Date().toDateString();
                 const dayBlock = (
                   <div
                     ref={isToday ? todayRef : null}
                     className={cn(
                       "w-4 h-4 rounded-sm",
-                      date ? getDayColorClass(date) : "bg-transparent",
-                      date && date > new Date()
+                      getDayColorClass(date),
+                      date > new Date()
                         ? "cursor-default"
                         : isToday
                         ? "cursor-pointer"
@@ -142,7 +152,7 @@ export function YearlyHabitTracker({
                       }
                     }}
                   >
-                    {date && date.getDate() === 1 && (
+                    {date.getDate() === 1 && (
                       <div className="absolute -top-4 text-xs text-gray-500 -ml-2">
                         {date.toLocaleString("en-US", { month: "short" })}
                       </div>
@@ -151,23 +161,15 @@ export function YearlyHabitTracker({
                 );
 
                 return (
-                  <TooltipProvider
-                    key={
-                      date
-                        ? date.toISOString()
-                        : `empty-${weekIndex}-${dayIndex}`
-                    }
-                    delayDuration={100}
-                  >
+                  <TooltipProvider key={date.toISOString()} delayDuration={100}>
                     <Tooltip>
                       <TooltipTrigger asChild>{dayBlock}</TooltipTrigger>
                       <TooltipContent>
-                        {date &&
-                          date.toLocaleDateString("en-US", {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                          })}
+                        {date.toLocaleDateString("en-US", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
