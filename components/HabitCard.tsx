@@ -7,7 +7,12 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { calculateMaxStreak, getDaysSinceCreation } from "@/lib/utils";
+import {
+  calculateMaxStreak,
+  getDaysSinceCreation,
+  calculateCurrentStreak,
+} from "@/lib/utils";
+import { HabitStats } from "./HabitStats";
 import { ArrowRight } from "lucide-react";
 import {
   Tooltip,
@@ -36,6 +41,7 @@ export function HabitCard({
   const currentMonth = currentDate.getMonth();
 
   const maxStreak = calculateMaxStreak(completedDates);
+  const currentStreak = calculateCurrentStreak(completedDates);
 
   return (
     <Card className="hover:shadow-md transition-shadow h-full flex flex-col w-fit">
@@ -72,20 +78,13 @@ export function HabitCard({
         />
       </CardContent>
       <CardFooter className="flex flex-col justify-between items-start pt-4">
-        <div className="w-full flex justify-between">
-          <div className="flex flex-col items-center">
-            <div className="text-xl font-semibold text-blue-600">
-              {maxStreak}
-            </div>
-            <div className="text-xs text-gray-400">Max streak</div>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="text-xl font-semibold text-gray-700">
-              {completedDates.length}/{getDaysSinceCreation(createdAt)}
-            </div>
-            <div className="text-xs text-gray-400">Total days</div>
-          </div>
-        </div>
+        <HabitStats
+          layout="card"
+          currentStreak={currentStreak}
+          maxStreak={maxStreak}
+          totalCompleted={completedDates.length}
+          totalDays={getDaysSinceCreation(createdAt)}
+        />
 
         <div className="mt-4 text-sm text-gray-500">
           Started{" "}

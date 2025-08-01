@@ -18,7 +18,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { HabitStats } from "./HabitStats";
 import { YearlyHabitTracker } from "@/components/YearlyHabitTracker";
+import { calculateCurrentStreak, calculateMaxStreak } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 
 interface HabitDetailProps {
@@ -156,36 +158,6 @@ export function HabitDetail({ habitId, loading }: HabitDetailProps) {
     (_, i) => currentYear - i
   );
 
-  const calculateMaxStreak = () => {
-    if (habit.completedDates.length === 0) return 0;
-
-    const sortedDates = [...habit.completedDates]
-      .map((dateStr) => new Date(dateStr))
-      .sort((a, b) => a.getTime() - b.getTime());
-
-    let maxStreak = 0;
-    let currentStreak = 0;
-
-    for (let i = 0; i < sortedDates.length; i++) {
-      if (i === 0) {
-        currentStreak = 1;
-      } else {
-        const prevDate = sortedDates[i - 1];
-        const currentDate = sortedDates[i];
-        const diffTime = Math.abs(currentDate.getTime() - prevDate.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-        if (diffDays === 1) {
-          currentStreak++;
-        } else if (diffDays > 1) {
-          currentStreak = 1;
-        }
-      }
-      maxStreak = Math.max(maxStreak, currentStreak);
-    }
-    return maxStreak;
-  };
-
   const calculateTotalDays = () => {
     const today = new Date();
     const created = new Date(habit.createdAt);
@@ -194,8 +166,9 @@ export function HabitDetail({ habitId, loading }: HabitDetailProps) {
     return diffDays;
   };
 
-  const maxStreak = calculateMaxStreak();
+  const maxStreak = calculateMaxStreak(habit.completedDates);
   const totalDays = calculateTotalDays();
+  const currentStreak = calculateCurrentStreak(habit.completedDates);
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
@@ -249,16 +222,12 @@ export function HabitDetail({ habitId, loading }: HabitDetailProps) {
                 year: "numeric",
               })}
             </p>
-            <div className="grid grid-cols-2 gap-2 mt-2 w-56">
-              <div className="aspect-square flex flex-col items-center justify-center rounded-md bg-gray-100 text-gray-700 p-2">
-                <span className="text-xs font-semibold">Max Streak</span>
-                <span className="text-lg font-bold">{maxStreak}</span>
-              </div>
-              <div className="aspect-square flex flex-col items-center justify-center rounded-md bg-gray-100 text-gray-700 p-2">
-                <span className="text-xs font-semibold">Total Days</span>
-                <span className="text-lg font-bold">{habit.completedDates.length}/{totalDays}</span>
-              </div>
-            </div>
+            <HabitStats
+              currentStreak={currentStreak}
+              maxStreak={maxStreak}
+              totalCompleted={habit.completedDates.length}
+              totalDays={totalDays}
+            />
           </div>
 
           <TooltipProvider delayDuration={100}>

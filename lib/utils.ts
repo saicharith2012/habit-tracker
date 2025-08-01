@@ -52,3 +52,42 @@ export function getDaysSinceCreation(createdAt: Date): number {
 
   return diffDays + 1 // Add 1 to include the start day
 }
+
+export function calculateCurrentStreak(completedDates: string[]): number {
+  if (completedDates.length === 0) {
+    return 0
+  }
+
+  const sortedDates = completedDates
+    .map((dateStr) => {
+      const date = new Date(dateStr)
+      date.setHours(0, 0, 0, 0)
+      return date
+    })
+    .sort((a, b) => b.getTime() - a.getTime()) // Sort in descending order
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const mostRecentDate = sortedDates[0]
+  const diffWithToday =
+    (today.getTime() - mostRecentDate.getTime()) / (1000 * 3600 * 24)
+
+  if (diffWithToday > 1) {
+    return 0
+  }
+
+  let currentStreak = 1
+  for (let i = 0; i < sortedDates.length - 1; i++) {
+    const date1 = sortedDates[i]
+    const date2 = sortedDates[i + 1]
+    const diff = (date1.getTime() - date2.getTime()) / (1000 * 3600 * 24)
+    if (diff === 1) {
+      currentStreak++
+    } else if (diff > 1) {
+      break
+    }
+  }
+
+  return currentStreak
+}
