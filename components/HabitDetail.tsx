@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, Trash2, Edit, Check, X } from "lucide-react";
 import Link from "next/link";
 import {
   getHabitById,
@@ -19,6 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { YearlyHabitTracker } from "@/components/YearlyHabitTracker";
+import { Input } from "@/components/ui/input";
 
 interface HabitDetailProps {
   habitId: string;
@@ -39,11 +40,16 @@ export function HabitDetail({ habitId, loading }: HabitDetailProps) {
   const [selectedYear, setSelectedYear] = useState<number | undefined>(
     undefined
   );
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newName, setNewName] = useState("");
 
   useEffect(() => {
     if (!loading) {
       const loadedHabit = getHabitById(habitId);
       setHabit(loadedHabit);
+      if (loadedHabit) {
+        setNewName(loadedHabit.name);
+      }
     }
   }, [habitId, loading]);
 
@@ -87,6 +93,22 @@ export function HabitDetail({ habitId, loading }: HabitDetailProps) {
       }
     });
     setIsConfirmModalOpen(true);
+  };
+
+  const handleSaveName = () => {
+    if (habit && newName.trim() !== "") {
+      const updatedHabit = { ...habit, name: newName.trim() };
+      setHabit(updatedHabit);
+      updateHabit(updatedHabit);
+      setIsEditingName(false);
+    }
+  };
+
+  const handleCancelEditName = () => {
+    if (habit) {
+      setNewName(habit.name);
+    }
+    setIsEditingName(false);
   };
 
   if (loading) {
@@ -193,9 +215,32 @@ export function HabitDetail({ habitId, loading }: HabitDetailProps) {
 
         <div className="flex flex-col items-start mb-8 sm:mb-0 sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="mx-2 my-4">
-            <h1 className="text-3xl font-bold text-gray-900">
-              {habit.name.charAt(0).toUpperCase() + habit.name.slice(1)}
-            </h1>
+            {isEditingName ? (
+              <div className="flex items-center gap-2">
+                <Input
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className="text-3xl font-bold text-gray-900"
+                />
+                <Button size="sm" onClick={handleSaveName}>
+                  <Check className="w-4 h-4" />
+                </Button>
+                <Button size="sm" variant="outline" onClick={handleCancelEditName}>
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+                {habit.name.charAt(0).toUpperCase() + habit.name.slice(1)}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setIsEditingName(true)}
+                >
+                  <Edit className="w-4 h-4" />
+                </Button>
+              </h1>
+            )}
             <p className="text-gray-600 mt-1">
               Started{" "}
               {createdAtDate.toLocaleDateString("en-US", {
